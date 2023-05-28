@@ -25,6 +25,10 @@ const jsonDataSchema = new Schema({
         type: Boolean,
         default: true,
     },
+    version: {
+        default: 1,
+        type: Number,
+    },
     createdAt: {
         type: Date,
         default: Date.now,

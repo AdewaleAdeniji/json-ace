@@ -59,10 +59,29 @@ app.get("/json/:id", async (req, res) => {
       json: data.jsonData,
       status: data.status,
       public: data.public,
-      jsonKey: data.jsonKey
+      jsonKey: data.jsonKey,
+      version: data.version
     };
     res.send(json);
   } catch {
+    sendFailedRequest(res, "Not found");
+  }
+});
+app.get("/haschanged/json/:id/:version", async (req, res) => {
+  const id = req.params.id;
+  const version = req.params.version;
+  if (!id) return sendFailedRequest(res, "ID missing");
+  try {
+    const data = await JS.getJSONdataById(id);
+    if (!data) return sendFailedRequest(res, "JSON does not exist");
+    var changed = false;
+    if(data.version != version) {
+       changed = true;
+    }
+    console.log(version, data.version)
+    return res.sendStatus(changed ? 200 : 400);
+  } catch (err){
+    console.log(err);
     sendFailedRequest(res, "Not found");
   }
 });
@@ -184,14 +203,48 @@ app.get("/app/json/:id", validateUser, async (req, res) => {
     if (!data) return sendFailedRequest(res, "JSON does not exist");
     if (!data.public) {
       if (data.userID !== req.userID)
-        return sendFailedRequest(res, "JSON does not exist");
+        return sendFailedRequest(res, "JSON does not exist.");
     }
     const json = {
       json: data.jsonData,
       status: data.status,
       public: data.public,
+      version: data.version,
     };
     res.send(json);
+  } catch {
+    sendFailedRequest(res, "Not found");
+  }
+});
+app.put("/app/json/:id", validateUser, async (req, res) => {
+  const id = req.params.id;
+  const newJSON = req.body;
+  if (!id) return sendFailedRequest(res, "ID missing");
+  try {
+    const data = await JS.getJSONdataById(id);
+    if (!data) return sendFailedRequest(res, "JSON does not exist");
+    if (!data.public) {
+      if (data.userID !== req.userID)
+        return sendFailedRequest(res, "JSON does not exist.");
+    }
+    const t = data.tracks
+    t.push(data.jsonData)
+    const json = {
+      _id: data._id,
+      tracks: t,
+      version:data.version + 1,
+      jsonData: newJSON.jsonData,
+      updatedAt: Date.now()
+    };
+    const update = await JS.updateJSON(json);
+    const jsonresponse = {
+      json: newJSON.jsonData,
+      status: data.status,
+      public: data.public,
+      id: data.jsonID,
+      version: data.version,
+    };
+    res.send(jsonresponse);
   } catch {
     sendFailedRequest(res, "Not found");
   }

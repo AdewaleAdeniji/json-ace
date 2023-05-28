@@ -38,3 +38,6 @@ exports.getDefaultUserJSON = async (userId) => {
     status: true,
   });
 };
+exports.updateJSON = async (json) => {
+  return await data.findByIdAndUpdate(json._id, json);
+};
