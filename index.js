@@ -87,7 +87,7 @@ app.get("/haschanged/json/:id/:version", async (req, res) => {
 });
 app.post("/json", async (req, res) => {
   const body = req.body;
-  body.jsonID = utils.generateID();
+  body.jsonID = utils.generateStreamID();
   if (body.jsonData === "" || body.jsonData === undefined)
     return sendFailedRequest(res, "JSON data field is empty");
     if (body.jsonKey === "" || body.jsonKey === undefined)

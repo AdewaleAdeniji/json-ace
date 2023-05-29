@@ -11,6 +11,12 @@ const generateID = () => {
   const userId = timestamp + random; // concatenate the timestamp and random strings
   return userId;
 };
+const generateStreamID = () => {
+  const random = Math.random().toString().substr(2, 7); // generate a random string of length 5
+  const userId = "ST" + random; // concatenate the timestamp and random strings
+  return userId;
+};
+
 
 // Method to validate the entered password using argon2
 const validateHash = async function (hashed, candidatePassword) {
@@ -90,4 +96,5 @@ module.exports = {
   countContestants,
   isValidObject,
   isValidEmail,
+  generateStreamID,
 };
